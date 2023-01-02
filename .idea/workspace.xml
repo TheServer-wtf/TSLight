@@ -8,10 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/TSLight.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/TSLight.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/TSLightCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/TSLightCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/TSLightPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/TSLightPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/event/PlayerListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/event/PlayerListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/inventory/LightMenuManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/wtf/TheServer/TSLight/inventory/LightMenuManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +50,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="Update 0.2.0&#10;Editing a light controller is now possible in-game&#10;Controller type is now displayed in the item name in the menu&#10;Using API version 1.0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update 0.2.0&#10;Editing a light controller is now possible in-game&#10;Controller type is now displayed in the item name in the menu&#10;Using API version 1.0.1" />
   </component>
 </project>

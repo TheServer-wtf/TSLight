@@ -69,7 +69,8 @@ public class TSLightPlugin extends JavaPlugin implements TSLight {
                 boolean state = light.getState();
                 int start = (int) (Math.min(light.getStart(), light.getEnd()));
                 int end = (int) (Math.max(light.getStart(), light.getEnd()));
-                boolean turnOn = IntStream.range(start, end).anyMatch(r->r==w.getTime());
+                boolean invert = light.getStart() < light.getEnd();
+                boolean turnOn = !invert ? IntStream.range(start, end).anyMatch(r->r==w.getTime()) : IntStream.range(start, end).noneMatch(r->r==w.getTime());
                 if(!turnOn){
                     if(state) {
                         if(isDebug()) getLogger().info("LightZoneTask: "+light.getId()+" is turning off");
