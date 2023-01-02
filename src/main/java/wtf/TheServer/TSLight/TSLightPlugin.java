@@ -276,8 +276,6 @@ public class TSLightPlugin extends JavaPlugin implements TSLight {
     public void saveController(@NotNull LightController controller){
         String type = controller instanceof LightBlock ? "block" : "zone";
         File file = new File(getDataFolder(),"/lights/"+controller.getId().toString().split(Pattern.quote("-"))[0]+".yml");
-        if(file.exists())   // we shouldn't override, it could cause problems down the line!
-            return;
         int start = (int) (Math.min(controller.getStart(), controller.getEnd()));
         int end = (int) (Math.max(controller.getStart(), controller.getEnd()));
         boolean turnOn = IntStream.range(start, end).anyMatch(r->r==controller.getLocation().getWorld().getTime());
@@ -296,7 +294,16 @@ public class TSLightPlugin extends JavaPlugin implements TSLight {
             config.set("location.X",loc.getBlockX());
             config.set("location.Y",loc.getBlockY());
             config.set("location.Z",loc.getBlockZ());
-            lightBlocks.add(block);
+            boolean update = !lightBlocks.add(block);
+            if(update){
+                LightBlock old = lightBlocks.stream().filter(l->l.getId().equals(block.getId())).findFirst().orElse(null);
+                if(old != null){
+                    old.setEnd(block.getEnd());
+                    old.setLevel(block.getLevel());
+                    old.setStart(block.getStart());
+                    old.setState(!turnOn);
+                }
+            }
         } else {
             LightZone zone = (LightZone) controller;
             zone.setState(!turnOn);
@@ -315,7 +322,16 @@ public class TSLightPlugin extends JavaPlugin implements TSLight {
             config.set("location.center.X",center.getBlockX());
             config.set("location.center.Y",center.getBlockY());
             config.set("location.center.Z",center.getBlockZ());
-            lightZones.add(zone);
+            boolean update = !lightZones.add(zone);
+            if(update){
+                LightZone old = lightZones.stream().filter(l->l.getId().equals(zone.getId())).findFirst().orElse(null);
+                if(old != null){
+                    old.setEnd(zone.getEnd());
+                    old.setLevel(zone.getLevel());
+                    old.setStart(zone.getStart());
+                    old.setState(!turnOn);
+                }
+            }
         }
         try {
             config.save(file);
@@ -326,7 +342,6 @@ public class TSLightPlugin extends JavaPlugin implements TSLight {
     }
 
     public boolean removeController(@NotNull UUID uid){
-        if(isDebug()) getLogger().info("Attempting to remove "+uid);
         LightBlock block = lightBlocks.stream().filter(light -> light.getId().equals(uid)).findFirst().orElse(null);
         LightZone zone = lightZones.stream().filter(light -> light.getId().equals(uid)).findFirst().orElse(null);
         File file = new File(getDataFolder(),"/lights/"+uid.toString().split(Pattern.quote("-"))[0]+".yml");
@@ -337,6 +352,16 @@ public class TSLightPlugin extends JavaPlugin implements TSLight {
             lightZones.remove(zone);
         }
         return file.delete();
+    }
+
+    @NotNull
+    public LightController getController(@NotNull UUID uid)
+            throws NullPointerException
+    {
+        LightController controller = lightBlocks.stream().filter(light -> light.getId().equals(uid)).findFirst().orElse(null);
+        if(controller == null)
+            controller = lightZones.stream().filter(light -> light.getId().equals(uid)).findFirst().orElse(null);
+        return Objects.requireNonNull(controller,"Light controller not found");
     }
 
     @NotNull

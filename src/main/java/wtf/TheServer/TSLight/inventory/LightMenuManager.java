@@ -83,9 +83,10 @@ public class LightMenuManager implements Listener {
                     Block block = light.getBlocks().stream().findFirst().orElse(null);
                     if (block == null)
                         return;
+                    String type = light instanceof LightBlock ? "block" : "zone";
                     ItemStack item = new ItemStack(block.getType().isItem() ? block.getType() : Material.STRING);
                     ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName("§e§l" + light.getId().toString().split(Pattern.quote("-"))[0]);
+                    meta.setDisplayName("§e§l" + light.getId().toString().split(Pattern.quote("-"))[0] + " §8("+type+")");
                     meta.setLore(List.of(
                             "§7" + formatLocation(light.getLocation()),
                             "§f",
@@ -93,6 +94,7 @@ public class LightMenuManager implements Listener {
                             "§aTurn on: " + light.getEnd(),
                             "§fLight level: " + light.getLevel(),
                             "§f",
+                            "§5Double click§e to edit",
                             "§4Press §5Shift+Right click§4 to remove"
                     ));
                     PersistentDataContainer pdc = meta.getPersistentDataContainer();
@@ -161,20 +163,53 @@ public class LightMenuManager implements Listener {
             if(item != null){
                 ItemMeta meta = item.getItemMeta();
                 PersistentDataContainer pdc = meta.getPersistentDataContainer();
-                if(event.getClick().equals(ClickType.SHIFT_RIGHT) && pdc.has(LIGHT_KEY,PersistentDataType.STRING)){
-                    plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
-                    String sid = pdc.get(LIGHT_KEY,PersistentDataType.STRING);
+                if(pdc.has(LIGHT_KEY,PersistentDataType.STRING)){
+                    String sid = pdc.get(LIGHT_KEY, PersistentDataType.STRING);
                     UUID uid = UUID.fromString(sid);
-                    boolean remove = plugin.removeController(uid);
-                    if(remove){
-                        player.sendMessage(plugin.getCentral().getSystemPrefix()+"§cLight controller with ID '§e§l"+sid.split(Pattern.quote("-"))[0]+"§c' has been removed.");
-                    } else {
-                        player.sendMessage(plugin.getCentral().getSystemPrefix()+"§cFailed to remove light controller with ID '§5"+sid.split(Pattern.quote("-"))[0]+"§c'");
+                    if(event.getClick().equals(ClickType.SHIFT_RIGHT)) {
+                        if(plugin.isDebug()) plugin.getLogger().info("LightMenuManager: "+player.getName()+" requested to remove "+uid);
+                        plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
+                        boolean remove = plugin.removeController(uid);
+                        if (remove) {
+                            if(plugin.isDebug()) plugin.getLogger().info("LightMenuManager: light "+uid+" removed");
+                            player.sendMessage(plugin.getCentral().getSystemPrefix() + "§cLight controller with ID '§e§l" + sid.split(Pattern.quote("-"))[0] + "§c' has been removed.");
+                        } else {
+                            player.sendMessage(plugin.getCentral().getSystemPrefix() + "§cFailed to remove light controller with ID '§5" + sid.split(Pattern.quote("-"))[0] + "§c'");
+                        }
+                    }
+                    if(event.getClick().equals(ClickType.DOUBLE_CLICK)){
+                        if(inBlockSetup(player) || inZoneSetup(player)){
+                            return;
+                        }
+                        if(plugin.isDebug()) plugin.getLogger().info("LightMenuManager: "+player.getName()+" requested to edit "+uid);
+                        plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
+                        LightController controller;
+                        try {
+                            controller = plugin.getController(uid);
+                        } catch (NullPointerException e){
+                            if(plugin.isDebug()) plugin.getLogger().info("LightMenuManager: "+uid+" no longer exists");
+                            return;
+                        }
+                        if(controller instanceof LightBlock){
+                            LightBlock block = ((LightBlock) controller).clone();
+                            block.setLevel(-1);
+                            block.setStart(-1);
+                            block.setEnd(-1);
+                            blockSetup.put(player.getUniqueId(), block);
+                        } else {
+                            LightZone zone = ((LightZone) controller).clone();
+                            zone.setLevel(-1);
+                            zone.setStart(-1);
+                            zone.setEnd(-1);
+                            zoneSetup.put(player.getUniqueId(), zone);
+                        }
+                        player.sendMessage(plugin.getCentral().getSystemPrefix()+"§bEntering editor, type in §d/tslight cancel§b to exit");
+                        advanceSetup(player,1);
                     }
                 }
                 if(pdc.has(CREATE_KEY,PersistentDataType.STRING)){
                     if(inBlockSetup(player) || inZoneSetup(player)){
-                        return; // How did we get here ???
+                        return;
                     }
                     String type = pdc.get(CREATE_KEY,PersistentDataType.STRING);
                     player.closeInventory();
@@ -251,9 +286,12 @@ public class LightMenuManager implements Listener {
     public void advanceSetup(@NotNull Player player, int stage){
         if(!inBlockSetup(player) && !inZoneSetup(player))
             return;
+        if(stage == 0)
+            stage = 1;
+        if(plugin.isDebug()) plugin.getLogger().info("LightSetup: "+player.getName()+" entered stage "+stage);
         switch (stage){
             // Stage 0 is technically the block or worldedit selection but we don't handle that here
-            case 0, 1 -> {
+            case 1 -> {
                 player.sendMessage(plugin.getCentral().getSystemPrefix()+"§ePlease specify the time the lights turn off (0-23999)");
                 player.sendMessage("§aYou can also use one of the following: §d"+ Arrays.stream(DaylightCycle.values()).map(Enum::toString).map(String::toLowerCase).collect(Collectors.joining(", ")));
             }

@@ -49,7 +49,8 @@ public class PlayerListener implements Listener {
                 player.sendMessage(plugin.getCentral().getSystemPrefix() + "§cError: "+ex.getMessage());
                 return;
             }
-            plugin.getLightMenuManager().advanceSetup(player,0);
+            if(plugin.isDebug()) plugin.getLogger().info("LightSetup: "+player.getName()+" selected a valid block");
+            plugin.getLightMenuManager().advanceSetup(player,1);
         }
     }
 
@@ -174,6 +175,7 @@ public class PlayerListener implements Listener {
             plugin.getLightMenuManager().exitZoneSetup(player);
             plugin.getLightMenuManager().exitBlockSetup(player);
             player.sendMessage(plugin.getCentral().getSystemPrefix()+"§bThe light setup is now finished!");
+            if(plugin.isDebug()) plugin.getLogger().info("LightSetup: "+player.getName()+" finished the light setup");
         }
         if(msg.equalsIgnoreCase("back")){
             if(lightBlock != null){

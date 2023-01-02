@@ -83,7 +83,7 @@ public class TSLightCommand implements TabExecutor {
                                 player.sendMessage(plugin.getCentral().getSystemPrefix() + "§cError: " + ex.getMessage());
                                 break;
                             }
-                            plugin.getLightMenuManager().advanceSetup(player,0);
+                            plugin.getLightMenuManager().advanceSetup(player,1);
                         }
                     }
                 }
