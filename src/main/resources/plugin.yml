@@ -1,0 +1,25 @@
+name: TSLight
+main: wtf.TheServer.TSLight.TSLightPlugin
+version: ${project.version}
+api-version: 1.17
+author: TheServer.wtf
+website: 'https://TheServer.wtf/'
+description: A plugin that listens for the time and changes light zones or blocks accordingly
+depend:
+  - WorldEdit
+  - TSCentralPlugin
+
+permissions:
+  tslight.use:
+    default: op
+    description: Permission to use the main command
+  tslight.edit:
+    default: op
+    description: Allows the user to create, edit and remove light zones and blocks
+
+
+commands:
+  tslight:
+    aliases: [light]
+    usage: /<command> [args]
+    description: The main command of TSLight
